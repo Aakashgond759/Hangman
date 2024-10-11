@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 
 #setup display
 pygame.init()
@@ -22,7 +23,8 @@ for i in range(26):
 
 # fonts
 LETTER_FONT = pygame.font.SysFont('comicsans', 25)
-
+WORD_FOND = pygame.font.SysFont('comicsans', 40)
+TITLE_FONT = pygame.font.SysFont('comicsans', 50)
 
 #load images
 images = []
@@ -31,7 +33,11 @@ for i in range(7):
     images.append(image)     
 
 # game variables
-hangman_status = 2
+hangman_status = 0
+words = ["PYTHON", "IDLE", "PYTHON", "COMPUTER", "DEVELOPER", "CHEMISTRY", "PHYSICS", "MICROSOFT", "KEYBOARD", "BANANA", "APPLE", "LAPTOP", "CHARGER"]
+word = random.choice(words)
+guessed = []
+guessed.append(word[0])
 
 #colors 
 WHITE = (255, 255, 255)
@@ -45,6 +51,19 @@ run = True
 
 def draw():
     win.fill(WHITE)
+    #draw title
+    text = TITLE_FONT.render("DEVELOPER HANGMAN", 1, BLACK)
+    win.blit(text, (WIDTH/2 - text.get_width()/2, 20))
+
+    # draw word
+    display_word = ""
+    for letter in word:
+        if letter in guessed:
+            display_word += letter + " "
+        else:
+            display_word += "_ "
+    text = WORD_FOND.render(display_word, 1, BLACK)
+    win.blit(text, (400, 200))
 
     #draw buttons
     for letter in letters:
@@ -56,6 +75,15 @@ def draw():
 
     win.blit(images[hangman_status], (150, 100))
     pygame.display.update()
+
+
+def display_message(message):
+    pygame.time.delay(1000)
+    win.fill(WHITE)
+    text = WORD_FOND.render(message, 1, BLACK)
+    win.blit(text, (WIDTH/2 - text.get_width()/2, HEIGHT/2 - text.get_height()/2 ))
+    pygame.display.update()
+    pygame.time.delay(2000)
 
 while run:
     
@@ -77,6 +105,23 @@ while run:
                     dis = math.sqrt((x - m_x) ** 2 + (y - m_y) **2)
                     if dis < RADIUS:
                        letter[3] = False # print(ltr)
-                       
+                       guessed.append(ltr)
+                       if ltr not in word:
+                           hangman_status += 1
+    draw()
+
+    won = True
+    for letter in word:
+        if letter not in guessed:
+            won = False
+            break
+
+    if won:
+        display_message("You Win!")
+        break
+    
+    if hangman_status == 6:
+        display_message("You Lost!!!")
+        break
 
 pygame.quit()
